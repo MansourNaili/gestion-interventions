@@ -1,12 +1,17 @@
 import '../assets/Login.css'
-import { Link } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 
 function Login() {
+  const navigate = useNavigate();
+  const handleLogin = (e) => {
+    e.preventDefault();
+    navigate('/dashboard');
+  };
   return (
     <div className="login-container">
       <h2>Connexion</h2>
 
-      <form>
+      <form onSubmit={handleLogin}>
         <div>
           <label>Email</label>
           <input type="email" placeholder="Entrer votre email" />
@@ -19,7 +24,6 @@ function Login() {
 
         <button type="submit">Se connecter</button>
       </form>
-       <p>Ou allez au <Link to="/dashboard">tableau de bord</Link> pour tester.</p>
     </div>
   )
 }
