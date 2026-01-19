@@ -91,3 +91,20 @@ th {
 .formulaire button:hover {
   background-color: #1a2634;
 }
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status.en-cours {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.resolu {
+  background-color: #d4edda;
+  color: #155724;
+}
