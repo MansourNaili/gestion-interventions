@@ -1,116 +1,123 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import {getTechniciens,addTechnicien,updateTechnicien,deleteTechnicien,} from "../services/techniciensApi";
 
 function Techniciens() {
+  const [techniciens, setTechniciens] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [idEdit, setIdEdit] = useState(null);
 
-  const [techniciens, setTechniciens] = useState([
-    {
-      nom: "Ahmed Ben Ali",
-      specialite: "Réseaux",
-      email:"ahmed@exemple.com",
-      password: "111",
-      telephone: "21 345 678",
-    },
-    {
-      nom: "Mohamed Ben Mohamed ",
-      specialite: "Systèmes",
-      email:"mohamed@exemple.com",
-      password: "123",
-      telephone: "25 987 654",
-    }
-  ]);
+  const [nom, setNom] = useState("");
+  const [specialite, setSpecialite] = useState("");
+  const [email, setEmail] = useState("");
+  const [motDePasse, setMotDePasse] = useState("");
+  const [telephone, setTelephone] = useState("");
 
-  const [form, setForm] = useState({
-    nom: "",
-    specialite: "",
-    email:"",
-    password: "",
-    telephone: "",
-  });
+  useEffect(() => {
+    fetchTechniciens();
+  }, []);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+  const fetchTechniciens = async () => {
+    const data = await getTechniciens();
+    setTechniciens(data);
   };
 
-  const handleSubmit = (e) => {
+  const toggleForm = () => {
+    setShowForm(!showForm);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setNom("");
+    setSpecialite("");
+    setEmail("");
+    setMotDePasse("");
+    setTelephone("");
+    setIsEdit(false);
+    setIdEdit(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setTechniciens([...techniciens, form]);
+    if (isEdit) {
+      await updateTechnicien(idEdit, {
+        nom,
+        specialite,
+        email,
+        telephone,
+      });
+    } else {
+      await addTechnicien({
+        nom,
+        specialite,
+        email,
+        motDePasse,
+        telephone,
+      });
+    }
 
-    setForm({
-      nom: "",
-      specialite: "",
-      email: "",
-      password: "",
-      telephone: "",
-    });
+    resetForm();
+    setShowForm(false);
+    fetchTechniciens();
   };
 
-  const handleDelete = (indexToDelete) => {
-  const newList = techniciens.filter((_, index) => index !== indexToDelete);
-  setTechniciens(newList);
-};
+  const handleDelete = async (id) => {
+    await deleteTechnicien(id);
+    fetchTechniciens();
+  };
 
+  const handleEdit = (tech) => {
+    setNom(tech.nom);
+    setSpecialite(tech.specialite);
+    setEmail(tech.email);
+    setTelephone(tech.telephone);
+
+    setIsEdit(true);
+    setIdEdit(tech._id);
+    setShowForm(true);
+  };
 
   return (
     <div className="page">
       <Navbar />
       <h1>Gestion des techniciens</h1>
-      
-      <form className="formulaire" onSubmit={handleSubmit}>
-        <h3>Ajouter un technicien</h3>
+      <br />
+      <button className="btn-primary" onClick={toggleForm}>
+        {showForm ? "Annuler" : "Ajouter un technicien"}
+      </button>
 
-        <input
-          type="text"
-          name="nom"
-          placeholder="Nom"
-          value={form.nom}
-          onChange={handleChange}
-          required
-        />
+      {showForm && (
+        <div className="formulaire">
+          <h3>{isEdit ? "Modifier le technicien" : "Ajouter un technicien"}</h3>
 
-        <input
-          type="text"
-          name="specialite"
-          placeholder="Spécialité"
-          value={form.specialite}
-          onChange={handleChange}
-          required
-        />
+          <form onSubmit={handleSubmit}>
+            <label>Nom</label>
+            <input value={nom} onChange={(e) => setNom(e.target.value)} required />
 
-        <input
-          type="text"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+            <label>Spécialité</label>
+            <input value={specialite} onChange={(e) => setSpecialite(e.target.value)} required />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Mot de passe"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
-        <input
-          type="text"
-          name="telephone"
-          placeholder="Téléphone"
-          value={form.telephone}
-          onChange={handleChange}
-          required
-        />
+            {!isEdit && (
+              <>
+                <label>Mot de passe</label>
+                <input value={motDePasse} onChange={(e) => setMotDePasse(e.target.value)} required />
+              </>
+            )}
 
+            <label>Téléphone</label>
+            <input value={telephone} onChange={(e) => setTelephone(e.target.value)} />
 
-        <button className="btn-primary">Ajouter</button>
-      </form>
+            <button type="submit" className="btn-primary">
+              {isEdit ? "Modifier" : "Enregistrer"}
+            </button>
+          </form>
+        </div>
+      )}
 
       <table>
         <thead>
@@ -125,15 +132,16 @@ function Techniciens() {
         </thead>
 
         <tbody>
-          {techniciens.map((tech, index) => (
-            <tr key={index}>
+          {techniciens.map((tech) => (
+            <tr key={tech._id}>
               <td>{tech.nom}</td>
               <td>{tech.specialite}</td>
               <td>{tech.email}</td>
-              <td>{tech.password}</td>
+              <td>{tech.motDePasse}</td>
               <td>{tech.telephone}</td>
-              <td>
-                <button className="btn-danger"onClick={() => handleDelete(index)}>Supprimer</button>
+              <td className="actions-cell">
+                <button className="btn-primary" onClick={() => handleEdit(tech)}> Modifier </button>
+                <button className="btn-danger" onClick={() => handleDelete(tech._id)}> Supprimer </button>
               </td>
             </tr>
           ))}
@@ -144,4 +152,3 @@ function Techniciens() {
 }
 
 export default Techniciens;
-

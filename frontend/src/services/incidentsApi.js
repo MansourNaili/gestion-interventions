@@ -14,6 +14,15 @@ export const addIncident = async (incident) => {
   return res.json();
 };
 
+export const updateIncident = async (id, updatedIncident) => {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedIncident),
+  });
+  return res.json();
+};
+
 export const deleteIncident = async (id) => {
   await fetch(`${API_URL}/${id}`, {
     method: "DELETE",

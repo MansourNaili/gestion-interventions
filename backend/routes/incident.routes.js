@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Incident = require('../models/Incident');
 
-// Créer un incident
 router.post('/', async (req, res) => {
   try {
     const incident = new Incident(req.body);
@@ -13,7 +12,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Récupérer tous les incidents
 router.get('/', async (req, res) => {
   try {
     const incidents = await Incident.find();
@@ -23,7 +21,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Modifier un incident
 router.put('/:id', async (req, res) => {
   try {
     const incident = await Incident.findByIdAndUpdate(

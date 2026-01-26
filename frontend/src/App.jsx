@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Incidents from './pages/Incidents';
 import Interventions from './pages/Interventions';
 import Techniciens from './pages/Techniciens';
+import TechnicienDashboard from "./pages/TechnicienDashboard";
 function App() {
   return (
     <Router>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/incidents" element={<Incidents />} />
         <Route path="/interventions" element={<Interventions />} />
         <Route path="/techniciens" element={<Techniciens />} />
+        <Route path="/technicien" element={<TechnicienDashboard />} />
       </Routes>
     </Router>
   );

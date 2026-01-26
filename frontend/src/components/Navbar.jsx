@@ -17,6 +17,5 @@ function Navbar(){
         <button onClick={handleLogout} className="logout-button">Déconnexion</button>
         </nav>
     );
-
 }
 export default Navbar;

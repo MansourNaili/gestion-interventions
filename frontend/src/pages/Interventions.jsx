@@ -1,89 +1,176 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import {
+  getInterventions,
+  addIntervention,
+  updateIntervention,
+  deleteIntervention,
+} from "../services/interventionApi";
 
 function Interventions() {
-  const [showForm, setShowForm] = useState(false);
+  const [interventions, setInterventions] = useState([]);
+  const [incidents, setIncidents] = useState([]);
+  const [techniciens, setTechniciens] = useState([]);
 
-  const toggleForm = () => {
-    setShowForm(!showForm);
+  const [incident, setIncident] = useState("");
+  const [technicien, setTechnicien] = useState("");
+  const [description, setDescription] = useState("");
+  const [editId, setEditId] = useState(null);
+
+  useEffect(() => {
+    fetchInterventions();
+    fetchIncidents();
+    fetchTechniciens();
+  }, []);
+
+  const fetchInterventions = async () => {
+    const data = await getInterventions();
+    setInterventions(data);
+  };
+
+  const fetchIncidents = async () => {
+    const res = await fetch("http://localhost:5000/api/incidents");
+    const data = await res.json();
+
+    setIncidents(data.filter((i) => i.statut === "Ouvert"));
+  };
+
+  const fetchTechniciens = async () => {
+    const res = await fetch("http://localhost:5000/api/techniciens");
+    const data = await res.json();
+    setTechniciens(data);
+  };
+
+  const handleIncidentChange = (e) => {
+    const id = e.target.value;
+    setIncident(id);
+
+    const inc = incidents.find((i) => i._id === id);
+    if (inc) setDescription(inc.description);
+  };
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (editId) {
+    await updateIntervention(editId, {
+      incident,
+      technicien,
+      description,
+    });
+  } else {
+    await addIntervention({
+      incident,
+      technicien,
+      description,
+      statut: "En cours",
+    });
+  }
+
+  setEditId(null);
+  setIncident("");
+  setTechnicien("");
+  setDescription("");
+
+  fetchInterventions();
+  fetchIncidents();
+};
+
+const handleEdit = (id) => {
+  const intervention = interventions.find((i) => i._id === id);
+  if (!intervention) return;
+
+  setEditId(id);
+
+  setIncidents((prev) => {
+    const exists = prev.find(
+      (inc) => inc._id === intervention.incident?._id
+    );
+    if (exists) return prev;
+    return [...prev, intervention.incident];
+  });
+
+  setIncident(intervention.incident?._id);
+  setTechnicien(intervention.technicien?._id);
+  setDescription(intervention.description);
+};
+
+
+
+  const handleDelete = async (id) => {
+    await deleteIntervention(id);
+    fetchInterventions();
   };
 
   return (
     <div className="page">
       <Navbar />
       <h1>Gestion des interventions</h1>
-      <br /><br />
 
-      <button className="btn-primary" onClick={toggleForm}>
-        {showForm ? 'Annuler' : 'Ajouter une intervention'}
-      </button>
+      <div className="formulaire">
+        <h3>Nouvelle intervention</h3>
 
-      {showForm && (
-        <div className="formulaire">
-          <h3>Ajouter une intervention</h3>
-          <form>
-            <label>Incident</label>
-            <select>
-              <option>Panne serveur</option>
-              <option>Problème réseau</option>
-            </select>
+        <form onSubmit={handleSubmit}>
+          <label>Incident</label>
+          <select value={incident} onChange={handleIncidentChange} required disabled={editId !== null}>
+            <option value="">-- Sélectionner un incident --</option>
+            {incidents.map((i) => (
+              <option key={i._id} value={i._id}>
+                {i.titre}
+              </option>
+            ))}
+          </select>
 
-            <label>Technicien</label>
-            <select>
-              <option>Ahmed Ben Ali</option>
-              <option>Mohamed Ben Mohamed</option>
-            </select>
+          <label>Technicien</label>
+          <select
+            value={technicien}
+            onChange={(e) => setTechnicien(e.target.value)}
+            required
+          >
+            <option value="">-- Sélectionner un technicien --</option>
+            {techniciens.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.nom}
+              </option>
+            ))}
+          </select>
 
-            <label>Date d’intervention</label>
-            <input type="date" />
+          <label>Description</label>
+          <input type="text" value={description} disabled />
 
-            <label>Statut</label>
-            <select>
-              <option value="en_cours">En cours</option>
-              <option value="terminee">Terminée</option>
-            </select>
-
-            <label>Commentaire</label>
-            <input type="text" placeholder="Ajouter un commentaire" />
-
-            <button type="submit">Enregistrer</button>
-          </form>
-        </div>
-      )}
+          <button className="btn-primary">{editId ? "Modifier" : "Ajouter"}</button>
+        </form>
+      </div>
 
       <table>
         <thead>
           <tr>
             <th>Incident</th>
             <th>Technicien</th>
-            <th>Date</th>
+            <th>Description</th>
             <th>Statut</th>
-            <th>Actions</th>
+            <th>Commentaire technicien</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr>
-            <td>Panne serveur</td>
-            <td>Ahmed Ben Ali</td>
-            <td>13/01/2026</td>
-            <td>Terminée</td>
-            <td>
-              <button className="btn-primary">Modifier</button>
-              <button className="btn-danger">Supprimer</button>
-            </td>
-          </tr>
-
-          <tr>
-            <td>Problème réseau</td>
-            <td>Mohamed Ben Mohamed</td>
-            <td>14/01/2026</td>
-            <td>En cours</td>
-            <td>
-              <button className="btn-primary">Modifier</button>
-              <button className="btn-danger">Supprimer</button>
-            </td>
-          </tr>
+          {interventions.map((i) => (
+            <tr key={i._id}>
+              <td>{i.incident?.titre}</td>
+              <td>{i.technicien?.nom}</td>
+              <td>{i.description}</td>
+              <td className="status-cell">
+                <span className={`status ${i.statut?.toLowerCase().replace(" ", "-").replace("é", "e")}`}>{i.statut} </span>
+              </td>
+              <td>{i.commentaire || "-"}</td>
+              <td className="actions-cell">
+                <button className="btn-primary" onClick={() => handleEdit(i._id)}  disabled={i.statut === "Terminée"} 
+                 title={i.statut === "Terminée" ? "Intervention déjà terminée" : ""}>Modifier</button>
+                <button className="btn-danger" onClick={() => handleDelete(i._id)}> Supprimer</button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

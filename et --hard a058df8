@@ -1,0 +1,13 @@
+[33mb2ac8cf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33m679c450[m HEAD@{1}: reset: moving to HEAD~1
+[33m1b9301d[m HEAD@{2}: reset: moving to HEAD~1
+[33ma058df8[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{3}: commit: connexion frontend backend et base de donne et CRUD pour page incident
+[33m1b9301d[m HEAD@{4}: commit: Frontend initial(page,navbar,formulaire...)
+[33m679c450[m HEAD@{5}: commit: Ajout de la page de connexion
+[33mb2ac8cf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{6}: commit: Intégration des fichiers locaux avec le dépôt GitHub
+[33m2b7c00c[m HEAD@{7}: commit (merge): Initialisation
+[33m157e3bd[m HEAD@{8}: commit: initialisation de projet
+[33m2281af5[m[33m ([m[1;32mdev[m[33m)[m HEAD@{9}: checkout: moving from dev to main
+[33m2281af5[m[33m ([m[1;32mdev[m[33m)[m HEAD@{10}: checkout: moving from main to dev
+[33m2281af5[m[33m ([m[1;32mdev[m[33m)[m HEAD@{11}: Branch: renamed refs/heads/master to refs/heads/main
+[33m2281af5[m[33m ([m[1;32mdev[m[33m)[m HEAD@{13}: commit (initial): initialisation du projet
